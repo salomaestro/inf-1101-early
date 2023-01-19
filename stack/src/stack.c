@@ -1,22 +1,5 @@
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-#include <stdbool.h>
+#include "stack.h"
 
-// typedef enum stack_data_type {
-// 	TYPE_INT = sizeof(int),
-// 	TYPE_FLOAT = sizeof(float),
-// 	TYPE_CHAR = sizeof(char)
-// } size_t;
-
-typedef struct stack
-{
-	size_t type;
-	size_t size;
-	void *data;
-	void *top;
-	int top_index;
-} stack_t;
 
 stack_t stack_create(size_t size, size_t type)
 {
@@ -26,7 +9,6 @@ stack_t stack_create(size_t size, size_t type)
 		.type = type,
 		.size = size,
 		.data = malloc(effective_size),
-		.top = NULL,
 		.top_index = 0
 	};
 
@@ -39,6 +21,11 @@ void stack_destroy(stack_t *stack)
 	stack->data = NULL;
 }
 
+/* 
+ * Push a element to the stack.
+ * As in the nature of a stack, this will put the element
+ * on the top of the stack, following LIFO directive.
+ */
 bool stack_push(stack_t *stack, void *elem)
 {
 	/*
@@ -73,69 +60,102 @@ bool stack_push(stack_t *stack, void *elem)
 	 * Increment the top index.
 	 */
 	stack->top_index++;
+
 	return true;
 }
 
+/* 
+ * Pops an element from the stack.
+ * Will be the last inserted element (LIFO).
+ */
 void *stack_pop(stack_t *stack)
 {
+	/* 
+	 * Check if stack is empty.
+	 */
 	if (stack->top_index == 0) {
 		return NULL;
 	}
 
+	/* 
+	 * Allocate the space for our soon to be popped element.
+	 * This is just a temporary variable.
+	 */
 	void *elem = malloc(stack->type);
 
+	/* 
+	 * Decrement the top_index variable
+	 */
 	stack->top_index--;
 	
-	void *location_of_top = (char *)stack->data + stack->top_index * stack->type;
+	/* 
+	 * Pointer arithmetic to calculate the location of the top element:
+	 *              |data|       |loc_top |
+	 *                v              v
+	 * Memory:	xxxxxx|xxxx|xxxx|xxxx|xxxx|xxxxxxx
+	 *                0    1    2    3
+	 *                |------ Array ------|
+	 * top_index = 3  |  type = 4
+	 */
+	void *loc_top = (char *)stack->data + stack->top_index * stack->type;
 
-	memcpy(elem, location_of_top, stack->type);
+	/* 
+	 * Copy [stack->type] amount of bytes from [loc_top]
+	 * to [elem].
+	 */
+	memcpy(elem, loc_top, stack->type);
 
-	memset(location_of_top, 0, stack->type);
+	/* 
+	 * Set memory starting at [loc_top] till [loc_top + stack->type] to 0 
+	 */
+	memset(loc_top, 0, stack->type);
 
 	return elem;
 }
 
-typedef void (*print_fn)(void*);
-
-void print_int(void* val) {
+void print_int(void* val) 
+{
     printf("%d", *(int*)val);
 }
 
-void print_float(void* val) {
+void print_float(void* val)
+{
     printf("%f", *(float*)val);
 }
 
-void print_char(void* val) {
+void print_char(void* val)
+{
     printf("%c", *(char*)val);
 }
 
-void stack_print(stack_t* stack, print_fn print) {
+
+void stack_reverse_print(stack_t* stack, print_fn print) 
+{
+
+	printf("Stack:\n");
+
     for(int i=0; i<stack->top_index; i++) {
-        print((char*)stack->data + i*stack->type);
+	
+		printf("    %d:", i);
+		printf("\t");
+    
+	    print((char*)stack->data + i*stack->type);
+	
+		printf("\n");
     }
 }
 
-int main(int argc, char *argv[]) {
+void stack_print(stack_t *stack, print_fn print)
+{
+	printf("Stack:\n");
 
-    if (argc < 2) {
-        printf("Error: No arguments passed\n");
-        return 1;
-    }
+	for (int i=stack->top_index - 1; i >= 0; i--) {
 
-    int n = atoi(argv[1]);
+		printf("    %d:", stack->top_index - 1 - i);
+		printf("\t");
 
-    stack_t stack = stack_create(10, sizeof(int));
+		print((char *)stack->data + i * stack->type);
 
-    int* arr = (int *)malloc(sizeof(int) * n);
-
-    for (int i = 2; i < argc; i++) {
-        arr[i-2] = atoi(argv[i]);
-    }
-    for (int i = 0; i < n; i++) {
-        stack_push(&stack, &arr[i]);
-    }
-
-	stack_print(&stack, print_int);
-    free(arr);
-    return 0;
+		printf("\n");
+	}
 }
