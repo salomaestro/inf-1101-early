@@ -1,6 +1,6 @@
 # Sample makefile for linked list implementation
 
-SRC=main.c binarysearch.c
+SRC=main.c binarysearch.c compare.c
 HEADERS=include
 
 SRC:=$(patsubst %.c,src/%.c, $(SRC))
