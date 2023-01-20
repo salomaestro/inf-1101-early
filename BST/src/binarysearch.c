@@ -2,32 +2,20 @@
 
 /* 
  * Create a tree node.
+ * Takes a void * to some data.
  */
-tree_node_t *tree_createnode(size_t type, void *data)
+tree_node_t *tree_createnode(void *data)
 {
-    // tree_node_t node = {
-    //     .type = type,
-    //     .data = malloc(type),
-    //     .left = NULL,
-    //     .right = NULL
-    // };
-
     tree_node_t *new_node = malloc(sizeof(tree_node_t));
-    if (new_node == NULL) {
-        printf("error:");
+    
+    if (!new_node) {
+        printf("Error: malloc failed.");
         exit(1);
     }
-
-    // new_node->data = malloc(sizeof(type));
-    // if (new_node->data == NULL) {
-
-    // }
 
     new_node->data = data;
     new_node->left = NULL;
     new_node->right = NULL;
-    new_node->type = type;
-
 
     return new_node;
 }
@@ -37,6 +25,22 @@ tree_node_t *tree_createnode(size_t type, void *data)
  */
 void tree_destroynode(tree_node_t *node)
 {
+    /* Trivial case */
+    if (!node) {
+        return;
+    }
+
+    /* Destroy left child nodes */
+    if (node->left) {
+        tree_destroynode(node->left);
+    }
+
+    /* Destroy right child nodes */
+    if (node->right) {
+        tree_destroynode(node->right);
+    }
+
+    /* Free the data stored, then free the node. */
     free(node->data);
     free(node);
 }
@@ -47,12 +51,13 @@ void tree_destroynode(tree_node_t *node)
  */
 tree_t *tree_create(cmpfunc_t cmp)
 {
-    // tree_t tree = {
-    //     .root = NULL,
-    //     .cmp = cmp
-    // };
-
     tree_t *tree = malloc(sizeof(tree_t));
+
+    if (!tree) {
+        printf("Error: malloc failed.");
+        exit(1);
+    }
+
     tree->cmp = cmp;
     tree->root = NULL;
 
@@ -64,25 +69,13 @@ tree_t *tree_create(cmpfunc_t cmp)
  */
 void tree_destroy(tree_t *tree)
 {
+    /* If the root doesn't exist, tree can be destroyed. */
     if (!tree->root) {
         free(tree);
     }
-
-    /* Set the current node to be the root of the tree */
-    tree_node_t *curr = tree->root;
-
-    /* 
-     * Destroy only free's its data, 
-     * so won't loose reference to node.
-     */
-    // tree_destroynode(curr);
-
-    /* 
-     * For bot left and right nodes free their data.
-     */
-    while (curr) {
-        
-    }
+    
+    /* Recursively destroy each node of the tree. */
+    tree_destroynode(tree->root);
 }
 
 /* 
@@ -90,33 +83,33 @@ void tree_destroy(tree_t *tree)
  */
 int tree_insert(tree_t *tree, tree_node_t *node)
 {
+    /* Check that node is properly initialized */
     if (!node->data) {
         return 1;
     }
 
+    /* Trivial case, node assigned to root of tree. */
     if (!tree->root) {
         tree->root = node;
         return 0;
     }
 
-    if (node->type != tree->root->type) {
-        return 1;
-    }
-
     tree_node_t *curr = tree->root;
 
     int cmpval;
-    while (curr) {
-        cmpval = cmp(node, curr);
 
-        /* The case where to node already exists. */        
+    while (curr) {
+        cmpval = tree->cmp(node->data, curr->data);
+
+        /* Handle case where the node already exists. */        
         if (!cmpval) {
             return 2;
         }
 
+        /* new node less than root */
         if (cmpval < 0) {
             
-            /* Assign value to current's left */
+            /* Assign new node to current's left */
             if (!curr->left) {
                 curr->left = node;
                 return 0;
@@ -124,7 +117,11 @@ int tree_insert(tree_t *tree, tree_node_t *node)
 
             /* Iterate again but current is now its left node. */
             curr = curr->left;
+        
+        /* New node larger than root */
         } else if (cmpval > 0) {
+
+            /* Assign new node to current's right */
             if (!curr->right) {
                 curr->right = node;
                 return 0;
@@ -133,4 +130,50 @@ int tree_insert(tree_t *tree, tree_node_t *node)
             curr = curr->right;
         }
     }
+}
+
+void print_integer(void *elem)
+{
+    printf("%d", *(int *)elem);
+}
+
+void print_character(void *elem)
+{
+    printf("%c", *(char *) elem);
+}
+
+void print_floating(void *elem)
+{
+    printf("%f", *(float *)elem);
+}
+
+// void print_string(void *elem)
+// {
+//     printf("%s", *(char *))
+// }
+
+void tree_print(tree_t *tree, print_func print)
+{
+    print_util(tree->root, 0, print);
+}
+
+void print_util(tree_node_t *root, int space, print_func print)
+{
+    if (root == NULL) 
+        return;
+    
+    space += 10;
+
+    if (root->right)
+        print_util(root->right, space, print);
+
+    printf("\n");
+    for (int i = 10; i < space; i++)
+        printf(" ");
+
+    print(root->data);
+    printf("\n");
+
+    if (root->left)
+        print_util(root->left, space, print);
 }
