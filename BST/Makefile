@@ -1,6 +1,6 @@
 # Sample makefile for linked list implementation
 
-SRC=main.c binarysearch.c compare.c
+SRC=binarysearch.c compare.c
 HEADERS=include
 
 SRC:=$(patsubst %.c,src/%.c, $(SRC))
@@ -9,8 +9,9 @@ CFLAGS=-Wall -Wextra -g
 
 # $(CLFAGS) -lm
 
-binarysearch: $(SRC) $(HEADERS)
-	gcc -o $@ $(SRC) -I$(HEADERS)
-
+binarysearch: src/main.c $(SRC) $(HEADERS)
+	gcc -o $@ src/main.c $(SRC) -I$(HEADERS)
+sysfind: src/sysfind.c $(SRC) $(HEADERS)
+	gcc -o $@ src/sysfind.c $(SRC) -I$(HEADERS)
 clean:
-	rm -f *~ *.o binarysearch
+	rm -f *~ *.o binarysearch sysfind
