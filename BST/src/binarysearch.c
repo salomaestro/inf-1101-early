@@ -1,7 +1,10 @@
 #include "binarysearch.h"
 
-/* 
- * Create a tree node.
+/**
+ * @brief Create a tree node.
+ * 
+ * @param key 
+ * @return tree_node_t* 
  */
 tree_node_t *tree_createnode(int key)
 {
@@ -19,8 +22,10 @@ tree_node_t *tree_createnode(int key)
     return new_node;
 }
 
-/* 
- * Destroy tree node.
+/**
+ * @brief Destory a node of the tree and recursively it's sub-nodes.
+ * 
+ * @param node
  */
 void tree_destroynode(tree_node_t *node)
 {
@@ -44,9 +49,15 @@ void tree_destroynode(tree_node_t *node)
     free(node);
 }
 
-/* 
- * Create a binary tree and allocate space for the data.
- * Will allocate space for a fixed size tree.
+/**
+ * @brief Create a binary tree and allocate space for the data.
+ * 
+ * @param cmp       Comparison function. 
+ * @param data_arr  The array with data that will be used in the tree.
+ * @param arr_size  Number of elements in data array.
+ * @param dtype     sizeof(data type) used in array (size of one element).
+ * @param root_key  The index of the first element inserted to the tree.
+ * @return tree_t* 
  */
 tree_t *tree_create(cmpfunc_t cmp, void *data_arr, size_t arr_size, size_t dtype, int root_key)
 {
@@ -144,6 +155,9 @@ void *tree_node_get_data(tree_t *tree, tree_node_t *node)
 
     return data;
 }
+
+// int tree_insert_new(tree_t *tree, void *elem) {
+// }
 
 /* 
  * Insert an element to the tree.
