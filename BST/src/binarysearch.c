@@ -156,8 +156,57 @@ void *tree_node_get_data(tree_t *tree, tree_node_t *node)
     return data;
 }
 
-// int tree_insert_new(tree_t *tree, void *elem) {
-// }
+int tree_insert_multiple(tree_t *tree, void *elem, int num){
+    tree->arr_size++;
+
+    tree_node_t *nodes[num];
+
+    for (int i = 0; i < num; i++) {
+        nodes[i] = tree_createnode((int)tree->arr_size + i);
+    }
+
+    void *arr_dest = tree_getloc(
+        (char *)tree->data_arr,
+        tree->arr_size,
+        tree->dtype
+    );
+
+    memcpy(arr_dest, elem, num * tree->dtype);
+
+    int retval = 0;
+    int temp_retval;
+    for (int i = 0; i < num; i++) {
+
+        temp_retval = tree_insert(tree, nodes[i]);
+
+        if (temp_retval == -1)
+            retval = temp_retval;
+    }
+    return retval;
+}
+
+int tree_insert_new(tree_t *tree, void *elem) {
+
+    /* Increment size of array. */
+    tree->arr_size++;
+
+    tree_node_t *new_node = tree_createnode((int)tree->arr_size);
+
+    void *arr_dest = tree_getloc(
+        (char *)tree->data_arr,
+        tree->arr_size,
+        tree->dtype
+    );
+
+    /* 
+     * I use memcpy here instead of memset, as memcpy works
+     * with void pointers wheras memset I woul insert
+     * for a specific type.
+     */
+    memcpy(arr_dest, elem, tree->dtype);
+
+    return tree_insert(tree, new_node);
+}
 
 /* 
  * Insert an element to the tree.

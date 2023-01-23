@@ -15,6 +15,12 @@ void test_int() {
 
     tree_print(t, print_int);
 
+    int new_data[5] = {10, 14, -1, -5, 82};
+
+    tree_insert_multiple(t, (void *)new_data, 5);
+
+    tree_print(t, print_int);
+
     tree_destroy(t);
 }
 
@@ -46,9 +52,21 @@ void test_str() {
     tree_destroy(t);
 }
 
+typedef struct my {
+    int elem;
+} my_t;
+
+my_t *create_my(int elem) {
+    my_t *t = malloc(sizeof(my_t));
+
+    t->elem = elem;
+
+    return t;
+}
+
 int main()
 {
-    // test_int();
+    test_int();
     // test_char();
     // test_str();
     return 0;

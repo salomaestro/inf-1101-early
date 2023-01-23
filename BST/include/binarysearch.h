@@ -37,6 +37,10 @@ tree_t *tree_create(cmpfunc_t cmp, void *data_arr, size_t arr_size, size_t dtype
 
 void tree_destroy(tree_t *tree);
 
+int tree_insert_new(tree_t *tree, void *elem);
+
+int tree_insert_multiple(tree_t *tree, void *elem, int num);
+
 int tree_insert(tree_t *tree, tree_node_t *node);
 
 typedef void (*print_func) (void *);
